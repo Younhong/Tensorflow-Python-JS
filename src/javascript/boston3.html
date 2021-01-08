@@ -5,6 +5,7 @@
 
         <!-- Import TensorFlow.js -->
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
         <script src="boston.js"></script>
     </head>
 
@@ -33,24 +34,28 @@
                 optimizer: tf.train.adam(), 
                 loss: tf.losses.meanSquaredError }
             model.compile(compileParam);
+            tfvis.show.modelSummary({
+                name:"요약", tab: "모델" }, model);
 
             // 3. 데이터로 모델을 학습시킵니다. 
             // var fitParam = {epochs: 100}
+            var _history = [];
             var fitParam = { 
-                epochs: 3000, 
+                epochs: 100, 
                 callbacks:{
                     onEpochEnd: function(epoch, logs){
                         console.log('epoch', epoch, logs, 'RMSE=>', Math.sqrt(logs.loss));
+                        _history.push(logs);
+                        tfvis.show.history({name:'loss', tab:'역사'}, _history, ['loss']);
                     }
                 }
             } // loss 추가 예제
 
-            model.fit(원인, 결과, fitParam).then(
-                function (result) { 
-                    // 4. 모델을 이용합니다. 
-                    // 4.1 기존의 데이터를 이용
-                    var 예측한결과 = model.predict(원인);
-                    예측한결과.print();
+            model.fit(원인, 결과, fitParam).then(function (result) { 
+                // 4. 모델을 이용합니다. 
+                // 4.1 기존의 데이터를 이용
+                var 예측한결과 = model.predict(원인);
+                예측한결과.print();
             });  
 
             // var weights = model.getWeights();
